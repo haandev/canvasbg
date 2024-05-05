@@ -1,0 +1,13 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "includes": "./src",
+  "exclude": ["**/node_modules/**", "**/*.spec.ts"],
+  "theme": "default",
+  "name": "CanvasBG Library",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "disableSources": true,
+  "readme": "README.md",
+  "tsconfig": "tsconfig.json"
+}
