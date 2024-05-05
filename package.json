@@ -1,0 +1,31 @@
+{
+  "name": "canvasbg",
+  "version": "0.0.1",
+  "description": "A TypeScript library for creating interactive canvas backgrounds.",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "typedoc && tsc",
+    "demo": "cd demo && npm install && npm run dev"
+  },
+  "keywords": [
+    "canvas",
+    "animation",
+    "graph",
+    "background"
+  ],
+  "types": "dist/types/index.d.ts",
+  "author": "Hakan Özoğlu",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/d3-delaunay": "^6.0.4",
+    "typedoc": "^0.25.13",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "d3-delaunay": "^6.0.4"
+  }
+}
