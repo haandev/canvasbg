@@ -1,6 +1,17 @@
 import { CanvasBG } from "../canvas-bg";
-import { Particle } from "../types";
+import { CanvasSelector, Particle } from "../types";
 
+export const mathRandBetween = (min: number, max: number) => {
+  return Math.random() * (max - min) + min;
+};
+
+export type VelocityVector = { x: number; y: number; z: number };
+export type StarFieldConfig = {
+  velocity?: VelocityVector;
+  points?: number;
+  globalAlpha?: number;
+  feedFrom?: "top" | "bottom" | "left" | "right" | "anywhere";
+};
 /**
  * Represents a star field background displayed on a canvas.
  * Extends the CanvasBG class to inherit base canvas background functionality.
@@ -32,45 +43,90 @@ import { Particle } from "../types";
  *   .use(new StarField(null, { velocity: 0.002, points: 200 }));
  *
  */
-export class StarField extends CanvasBG {
-  private velocity: number = 0;
+export class StarField extends CanvasBG<StarFieldConfig> {
+  private velocity: VelocityVector = { x: 0, y: 0, z: 0 };
+
+  public dots: Particle[] = [];
+  constructor(canvas?: CanvasSelector, config?: StarFieldConfig) {
+    super(canvas, config);
+  }
   private initializePoints(pointCount: number) {
-    const size = this.store.size as { width: number; height: number };
     for (let i = 0; i < pointCount; i++) {
-      const dots = this.store.dots as Particle[];
-      dots.push({
+      this.dots.push({
         coordinate: [
-          Math.random() * (size.width + 500) - 250,
-          Math.random() * (size.height + 500) - 250,
+          Math.random() * (this.size.width + 500) - 250,
+          Math.random() * (this.size.height + 500) - 250,
         ],
         scale: 0.2 + Math.random() * (1 - 0.2),
       });
     }
   }
-  private updatePoints() {
-    const dots = this.store.dots as Particle[];
-    const size = this.store.size as { width: number; height: number };
-    this.velocity = this.velocity || 0;
-    dots.forEach((point: Particle) => {
-      point.scale += this.velocity;
+  private updateParticles() {
+    this.dots.forEach((point: Particle) => {
+      point.scale += this.velocity.z;
+      //update x coordinate
       point.coordinate[0] +=
-        (point.coordinate[0] - size.width / 2) * point.scale * this.velocity;
-      point.coordinate[1] +=
-        (point.coordinate[1] - size.width / 2) * point.scale * this.velocity;
+        (((point.coordinate[0] - this.size.width / 2) * point.scale) / 2) *
+          this.velocity.z +
+        (this.velocity.x * point.scale) / 1;
 
-      if (point.coordinate[0] < 0 || point.coordinate[0] > size.width) {
-        point.coordinate[0] = Math.random() * (size.width + 500) - 250;
-        point.coordinate[1] = Math.random() * (size.height + 500) - 250;
-        point.scale = 0.2 + Math.random() * (1 - 0.2);
+      //update y coordinate
+      point.coordinate[1] +=
+        (((point.coordinate[1] - this.size.height / 2) * point.scale) / 2) *
+          this.velocity.z +
+        (this.velocity.y * point.scale) / 1;
+
+      //recreate point if it goes out of bounds
+      if (
+        point.coordinate[0] < 0 ||
+        point.coordinate[0] > this.size.width + 250 ||
+        point.coordinate[1] < 0 ||
+        point.coordinate[1] > this.size.height
+      ) {
+        this.regenerateParticle(point);
       }
     });
   }
-  private drawPoints() {
-    const dots = this.store.dots as Particle[];
-    dots.forEach((point) => {
+  private regenerateParticle(point: Particle) {
+    const direction = this.config.feedFrom || "anywhere";
+    if (direction === "anywhere") {
+      point.coordinate[0] = mathRandBetween(-250, this.size.width + 250);
+      point.coordinate[1] = mathRandBetween(-250, this.size.height + 250);
+      point.scale = mathRandBetween(0.2, 1);
+    }
+    if (direction === "top") {
+      point.coordinate[0] = mathRandBetween(-250, this.size.width + 250);
+      point.coordinate[1] = mathRandBetween(-250, 0);
+      point.scale = mathRandBetween(0.2, 1);
+    }
+    if (direction === "bottom") {
+      point.coordinate[0] = mathRandBetween(-250, this.size.width + 250);
+      point.coordinate[1] = mathRandBetween(
+        this.size.height,
+        this.size.height + 250
+      );
+      point.scale = mathRandBetween(0.2, 1);
+    }
+    if (direction === "left") {
+      point.coordinate[0] = mathRandBetween(-250, 0);
+      point.coordinate[1] = mathRandBetween(-250, this.size.height + 250);
+      point.scale = mathRandBetween(0.2, 1);
+    }
+    if (direction === "right") {
+      point.coordinate[0] = mathRandBetween(
+        this.size.width,
+        this.size.width + 250
+      );
+      point.coordinate[1] = mathRandBetween(-250, this.size.height + 250);
+      point.scale = mathRandBetween(0.2, 1);
+    }
+  }
+  private drawParticles() {
+    this.dots.forEach((point) => {
       if (!this.ctx) return;
       this.ctx.beginPath();
-      this.ctx.fillStyle = `rgba(255, 255, 255, 1)`;
+      const alpha = ((this.config.globalAlpha || 1) * point.scale) / 2;
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       this.ctx.arc(
         point.coordinate[0],
         point.coordinate[1],
@@ -82,13 +138,16 @@ export class StarField extends CanvasBG {
     });
   }
   protected init(): void {
-    this.velocity = 0.001;
-    this.store.dots = [];
+    this.velocity = (this.config.velocity as VelocityVector) || {
+      x: 0,
+      y: 0,
+      z: 0.001,
+    };
     this.initializePoints((this.config?.points as number) || 150);
   }
   protected draw() {
     super.draw();
-    this.updatePoints();
-    this.drawPoints();
+    this.updateParticles();
+    this.drawParticles();
   }
 }
