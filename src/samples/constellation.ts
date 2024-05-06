@@ -1,8 +1,6 @@
 import { Delaunay } from "d3-delaunay";
 import { CanvasBG } from "../canvas-bg";
 import { CanvasSelector, ChildCanvasBG, Particle } from "../types";
-import { StarField } from "./star-field";
-import { MouseTracker } from "./mouse-tracker";
 
 /**
  * Represents a constellation displayed on a canvas.
