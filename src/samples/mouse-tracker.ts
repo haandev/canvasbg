@@ -20,22 +20,15 @@ import { CanvasBG } from "../canvas-bg";
  * ```
  */
 export class MouseTracker extends CanvasBG {
+  mousePosition: [number, number] = [0, 0];
   protected init() {
     super.init();
     window.addEventListener("mousemove", (e) => {
       if (!this.canvas) return;
-      const mousePosition = this.store.mousePosition as [number, number];
+      const mousePosition = this.mousePosition as [number, number];
       mousePosition[0] = e.clientX - this.canvas.offsetLeft;
       mousePosition[1] = e.clientY - this.canvas.offsetTop;
     });
-    this.store.mousePosition = [0, 0];
-  }
-  protected draw() {
-    if (!this.ctx) throw new Error("Canvas context not initialized");
-    const mousePosition = this.store.mousePosition as [number, number];
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "white";
-    this.ctx.arc(mousePosition[0], mousePosition[1], 2, 0, Math.PI * 2);
-    this.ctx.fill();
+    this.mousePosition = [0, 0];
   }
 }
