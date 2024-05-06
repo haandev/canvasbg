@@ -4,7 +4,7 @@ import { CanvasBG } from "./canvas-bg";
 /**
  * Represents a canvas or a subclass of CanvasBG.
  */
-export type ChildCanvasBG<T extends CanvasBG = CanvasBG> = T;
+export type ChildCanvasBG<T extends CanvasBG<any> = CanvasBG<any>> = T;
 
 /**
  * Represents a valid canvas selector.
