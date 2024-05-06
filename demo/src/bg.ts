@@ -1,4 +1,4 @@
-import { CanvasBG, StarField, MouseTracker, Constellation } from "canvasbg";
+import { CanvasBG, StarField, MouseTracker, Constellation } from "@haandev/canvasbg";
 
 const bg = new CanvasBG(".bg-canvas")
   .use(new StarField(null, { velocity: 0.001, points: 150 })) //

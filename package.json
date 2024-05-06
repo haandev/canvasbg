@@ -1,10 +1,16 @@
 {
-  "name": "canvasbg",
+  "name": "@haandev/canvasbg",
   "version": "0.0.1",
   "description": "A TypeScript library for creating interactive canvas backgrounds.",
   "main": "dist/index.js",
   "files": [
     "dist"
+  ],
+  "maintainers": [
+    {
+      "name": "Hakan Özoğlu",
+      "email": "mhozoglu@yandex.com.tr"
+    }
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,6 +25,7 @@
   ],
   "types": "dist/types/index.d.ts",
   "author": "Hakan Özoğlu",
+  "homepage": "https://haandev.github.com/canvasbg",
   "license": "MIT",
   "devDependencies": {
     "@types/d3-delaunay": "^6.0.4",
