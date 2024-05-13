@@ -9,6 +9,11 @@ import { CanvasSelector, ChildCanvasBG, Layer, LayerConfig, NotNullCanvasSelecto
  * @remarks CanvasBG instances can be chained together to create complex backgrounds.
  */
 export class CanvasBG<Config = Record<string, unknown>> {
+  /**
+   * Gets the default alias for the CanvasBG class.
+   */
+  public readonly defaultAlias: string = "";
+
   private zIndexCounter = 0;
   protected canvas?: HTMLCanvasElement;
   protected ctx?: CanvasRenderingContext2D;
@@ -82,6 +87,16 @@ export class CanvasBG<Config = Record<string, unknown>> {
     this.bindContext(canvas, { as: "__main", zIndex: 0 });
   }
 
+  private nextPossibleAlias(key?: string) {
+    if (!key) return;
+    let i = 1;
+    let newKey = key;
+    while (this.layers[newKey]) {
+      newKey = `${key}${++i}`;
+    }
+    return newKey;
+  }
+
   private bindContext(host: NotNullCanvasSelector, config: { as?: string; zIndex: number }) {
     if (typeof host === "string") {
       this.canvas = document.querySelector(host) as HTMLCanvasElement;
@@ -93,7 +108,14 @@ export class CanvasBG<Config = Record<string, unknown>> {
       }
       this.canvas = host.canvas as HTMLCanvasElement;
       config = config || {};
-      config.as = config.as || this.constructor.name.toLowerCase();
+      const className = this.constructor.name.toLowerCase();
+
+      config.as =
+        this.nextPossibleAlias(config.as) ||
+        this.nextPossibleAlias(this.defaultAlias) ||
+        this.nextPossibleAlias(className) ||
+        className;
+
       this._size = host.size;
       delete this._layers.main;
       const { as, ..._config } = config;

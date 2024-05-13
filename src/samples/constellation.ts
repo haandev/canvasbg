@@ -32,6 +32,8 @@ export type ConstellationConfig = {
   starfield: ChildCanvasBG | string;
 };
 export class Constellation extends CanvasBG<ConstellationConfig> {
+  public readonly defaultAlias = "constellation";
+
   private dots: Particle[] = [];
   private mousePosition: [number, number] = [0, 0];
 

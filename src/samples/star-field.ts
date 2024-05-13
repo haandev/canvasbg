@@ -46,6 +46,8 @@ export type StarFieldConfig = {
  *
  */
 export class StarField extends CanvasBG<StarFieldConfig> {
+  public readonly defaultAlias = "starfield";
+
   private speed: speedVector = { x: 0, y: 0, z: 0 };
 
   public dots: Particle[] = [];
@@ -55,10 +57,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
   private initializePoints(pointCount: number) {
     for (let i = 0; i < pointCount; i++) {
       this.dots.push({
-        coordinate: [
-          Math.random() * (this.size.width + 500) - 250,
-          Math.random() * (this.size.height + 500) - 250,
-        ],
+        coordinate: [Math.random() * (this.size.width + 500) - 250, Math.random() * (this.size.height + 500) - 250],
         scale: 0.2 + Math.random() * (1 - 0.2),
       });
     }
@@ -68,14 +67,12 @@ export class StarField extends CanvasBG<StarFieldConfig> {
       point.scale += this.speed.z;
       //update x coordinate
       point.coordinate[0] +=
-        (((point.coordinate[0] - this.size.width / 2) * point.scale) / 2) *
-          this.speed.z +
+        (((point.coordinate[0] - this.size.width / 2) * point.scale) / 2) * this.speed.z +
         (this.speed.x * point.scale) / 1;
 
       //update y coordinate
       point.coordinate[1] +=
-        (((point.coordinate[1] - this.size.height / 2) * point.scale) / 2) *
-          this.speed.z +
+        (((point.coordinate[1] - this.size.height / 2) * point.scale) / 2) * this.speed.z +
         (this.speed.y * point.scale) / 1;
 
       //recreate point if it goes out of bounds
@@ -103,10 +100,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
     }
     if (direction === "bottom") {
       point.coordinate[0] = mathRandBetween(-250, this.size.width + 250);
-      point.coordinate[1] = mathRandBetween(
-        this.size.height,
-        this.size.height + 250
-      );
+      point.coordinate[1] = mathRandBetween(this.size.height, this.size.height + 250);
       point.scale = mathRandBetween(0.2, 1);
     }
     if (direction === "left") {
@@ -115,10 +109,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
       point.scale = mathRandBetween(0.2, 1);
     }
     if (direction === "right") {
-      point.coordinate[0] = mathRandBetween(
-        this.size.width,
-        this.size.width + 250
-      );
+      point.coordinate[0] = mathRandBetween(this.size.width, this.size.width + 250);
       point.coordinate[1] = mathRandBetween(-250, this.size.height + 250);
       point.scale = mathRandBetween(0.2, 1);
     }
@@ -129,13 +120,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
       this.ctx.beginPath();
       const alpha = ((this.config.alpha || 1) * point.scale) / 2;
       this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-      this.ctx.arc(
-        point.coordinate[0],
-        point.coordinate[1],
-        point.scale,
-        0,
-        Math.PI * 2
-      );
+      this.ctx.arc(point.coordinate[0], point.coordinate[1], point.scale, 0, Math.PI * 2);
       this.ctx.fill();
     });
   }

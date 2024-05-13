@@ -20,6 +20,8 @@ import { CanvasBG } from "../canvas-bg";
  * ```
  */
 export class MouseTracker extends CanvasBG {
+  public readonly defaultAlias = "mousetracker";
+
   mousePosition: [number, number] = [0, 0];
   protected init() {
     super.init();
