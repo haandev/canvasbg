@@ -7,6 +7,16 @@ import { CanvasBG } from "./canvas-bg";
 export type ChildCanvasBG<T extends CanvasBG<any> = CanvasBG<any>> = T;
 
 /**
+ * Represents a layer for the CanvasBG instance.
+ */
+export type Layer = { config: LayerConfig; instance: ChildCanvasBG };
+
+/**
+ * Represents a configuration object for a CanvasBG layer.
+ */
+export type LayerConfig = { as: string; zIndex: number };
+
+/**
  * Represents a valid canvas selector.
  */
 export type CanvasSelector = NotNullCanvasSelector | null | undefined;

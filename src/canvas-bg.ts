@@ -1,4 +1,4 @@
-import { CanvasSelector, ChildCanvasBG, NotNullCanvasSelector } from "./types";
+import { CanvasSelector, ChildCanvasBG, Layer, LayerConfig, NotNullCanvasSelector } from "./types";
 
 /**
  * Constructs a new CanvasBG instance.
@@ -9,11 +9,12 @@ import { CanvasSelector, ChildCanvasBG, NotNullCanvasSelector } from "./types";
  * @remarks CanvasBG instances can be chained together to create complex backgrounds.
  */
 export class CanvasBG<Config = Record<string, unknown>> {
+  private zIndexCounter = 0;
   protected canvas?: HTMLCanvasElement;
   protected ctx?: CanvasRenderingContext2D;
 
-  protected _layers: Record<string, ChildCanvasBG> = {
-    __main: this,
+  protected _layers: Record<string, Layer> = {
+    __main: { instance: this, config: { as: "__main", zIndex: 0 } },
   };
 
   /**
@@ -21,12 +22,13 @@ export class CanvasBG<Config = Record<string, unknown>> {
    * The layers are stored as key-value pairs, where the key is the layer name
    * and the value is the associated CanvasBG instance.
    * the __main key is reserved for the main CanvasBG instance.
+   * zIndex is used to sort the layers.
    *
    * @example
    * ```typescript
    * const bg = new CanvasBG(".bg-canvas")
-   * .use(new StarField(null, { velocity: 0.001, points: 150 }))
-   * .use(new MouseTracker(), "mousetracker") // associate with a key
+   * .use(new StarField(null, { speed: { x: 0, y: 0, z: 0.001 }, points: 150 }))
+   * .use(new MouseTracker(), { as: "mousetracker", zIndex:100}) // associate with a key
    * .use(new Constellation()); // associate without a key (default key is the class name)
    * console.log(bg.layers.__main === bg); // true
    * ```
@@ -37,8 +39,8 @@ export class CanvasBG<Config = Record<string, unknown>> {
    * const starField = new StarField(mainCanvas);
    * const mouseTracker = new MouseTracker(mainCanvas);
    * mainCanvas
-   *   .use(starField, "starfield")
-   *   .use(mouseTracker, "mousetracker");
+   *   .use(starField, { as: "starfield" })
+   *   .use(mouseTracker, { as: "mousetracker" });
    * console.log(mainCanvas.layers === starField.layers); // true
    *
    * @returns The layers associated with the current CanvasBG instance.
@@ -77,25 +79,27 @@ export class CanvasBG<Config = Record<string, unknown>> {
   constructor(canvas?: CanvasSelector, config?: Config) {
     if (config) this.config = config;
     if (!canvas) return;
-    this.bindContext(canvas);
+    this.bindContext(canvas, { as: "__main", zIndex: 0 });
   }
 
-  private bindContext(host: NotNullCanvasSelector, key?: string) {
+  private bindContext(host: NotNullCanvasSelector, config: { as?: string; zIndex: number }) {
     if (typeof host === "string") {
       this.canvas = document.querySelector(host) as HTMLCanvasElement;
     } else if (host instanceof HTMLCanvasElement) {
       this.canvas = host;
     } else if (host instanceof CanvasBG) {
-      if (this.layers.__main !== this) {
+      if (this.layers.__main.instance !== this) {
         throw new Error("CanvasBG instance can only be associated with one parent");
       }
       this.canvas = host.canvas as HTMLCanvasElement;
-      key = key || this.constructor.name.toLowerCase();
+      config = config || {};
+      config.as = config.as || this.constructor.name.toLowerCase();
       this._size = host.size;
       delete this._layers.main;
+      const { as, ..._config } = config;
       Object.assign(host.layers, {
         ...host.layers,
-        [key]: this,
+        [as]: { instance: this, config: _config },
         ...this.layers,
       });
       this._layers = host.layers;
@@ -121,9 +125,11 @@ export class CanvasBG<Config = Record<string, unknown>> {
     });
   }
   private callAnimationCallbacks() {
-    Object.values(this.layers).forEach((layer) => {
-      layer.draw?.();
-    });
+    Object.values(this.layers)
+      .sort((a, b) => a.config.zIndex - b.config.zIndex)
+      .forEach((layer) => {
+        layer.instance.draw?.();
+      });
   }
   private initializeCanvas() {
     if (!this.canvas) throw new Error("Canvas not initialized");
@@ -158,7 +164,7 @@ export class CanvasBG<Config = Record<string, unknown>> {
    * Make sure to call this method after binding the canvas context.
    * @example
    * const bg = new CanvasBG(".bg-canvas")
-   * .use(new StarField(null, { velocity: 0.001, points: 150 })) //
+   * .use(new StarField(null, { speed: { x: 0, y: 0, z: 0.001 }, points: 150 }))
    * .use(new MouseTracker())
    * .use(new Constellation());
    * bg.animate();
@@ -182,8 +188,25 @@ export class CanvasBG<Config = Record<string, unknown>> {
    * @returns The current CanvasBG instance after association.
    * @remarks Don't override this method; it is used internally to bind the context.
    */
-  public use(canvasbg: ChildCanvasBG, key?: string) {
-    canvasbg.bindContext(this, key);
+  public use(canvasbg: ChildCanvasBG, config?: Partial<LayerConfig>) {
+    const zIndex = config?.zIndex || this.zIndexCounter++;
+    const as = config?.as;
+
+    canvasbg.bindContext(this, { as, zIndex });
     return this;
+  }
+
+
+  /**
+   * Gets the associated layer instance by name.
+   * @param selector The layer name or ChildCanvasBG reference.
+   * @returns The associated layer instance.
+   */
+  protected getLayerInstance(selector: ChildCanvasBG | string) {
+    if (typeof selector === "string") {
+      return this.layers[selector].instance;
+    } else {
+      return selector;
+    }
   }
 }
