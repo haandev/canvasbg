@@ -7,4 +7,6 @@ export type {
   CanvasSelector,
   NotNullCanvasSelector,
   ChildCanvasBG,
+  Layer,
+  LayerConfig,
 } from "./types";
