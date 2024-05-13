@@ -9,7 +9,7 @@ export type ChildCanvasBG<T extends CanvasBG<any> = CanvasBG<any>> = T;
 /**
  * Represents a layer for the CanvasBG instance.
  */
-export type Layer = { config: LayerConfig; instance: ChildCanvasBG };
+export type Layer = { config: Omit<LayerConfig, "as">; instance: ChildCanvasBG };
 
 /**
  * Represents a configuration object for a CanvasBG layer.

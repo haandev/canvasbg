@@ -11,6 +11,7 @@ import { CanvasSelector, ChildCanvasBG, Layer, LayerConfig, NotNullCanvasSelecto
 export class CanvasBG<Config = Record<string, unknown>> {
   /**
    * Gets the default alias for the CanvasBG class.
+   * Override this property to set a default alias for the class.
    */
   public readonly defaultAlias: string = "";
 
@@ -19,7 +20,7 @@ export class CanvasBG<Config = Record<string, unknown>> {
   protected ctx?: CanvasRenderingContext2D;
 
   protected _layers: Record<string, Layer> = {
-    __main: { instance: this, config: { as: "__main", zIndex: 0 } },
+    __main: { instance: this, config: { zIndex: 0 } },
   };
 
   /**
@@ -217,7 +218,6 @@ export class CanvasBG<Config = Record<string, unknown>> {
     canvasbg.bindContext(this, { as, zIndex });
     return this;
   }
-
 
   /**
    * Gets the associated layer instance by name.
