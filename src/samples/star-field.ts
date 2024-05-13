@@ -5,12 +5,12 @@ export const mathRandBetween = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
 };
 
-export type VelocityVector = { x: number; y: number; z: number };
+export type speedVector = { x: number; y: number; z: number };
 export type StarFieldConfig = {
-  velocity?: VelocityVector;
+  speed?: speedVector;
   points?: number;
-  globalAlpha?: number;
-  feedFrom?: "top" | "bottom" | "left" | "right" | "anywhere";
+  alpha?: number;
+  feed?: "top" | "bottom" | "left" | "right" | "anywhere";
 };
 /**
  * Represents a star field background displayed on a canvas.
@@ -31,20 +31,22 @@ export type StarFieldConfig = {
  * ```
  *
  * Configuration options:
- * - `velocity` - The velocity of the stars. Default is `0.001` .
+ * - `speed` - The speed of the stars. Default is `0.001` .
  * - `points` - The number of points to display. Default is `150`.
+ * - `alpha` - The global alpha value of the stars. Default is `1`.
+ * - `feed` - The direction from which the stars will be fed. Default is `anywhere`.
  *
  * @example
  * // Create a StarField instance with configuration options
- * const starField = new StarField('#myCanvas', { velocity: 0.002, points: 200 });
+ * const starField = new StarField('#myCanvas', { speed: 0.002, points: 200 });
  *
  * // Chain a StarField instance with configuration options using a previously created CanvasBG instance
  * const bg = new CanvasBG()
- *   .use(new StarField(null, { velocity: 0.002, points: 200 }));
+ *   .use(new StarField(null, { speed: 0.002, points: 200 }));
  *
  */
 export class StarField extends CanvasBG<StarFieldConfig> {
-  private velocity: VelocityVector = { x: 0, y: 0, z: 0 };
+  private speed: speedVector = { x: 0, y: 0, z: 0 };
 
   public dots: Particle[] = [];
   constructor(canvas?: CanvasSelector, config?: StarFieldConfig) {
@@ -63,18 +65,18 @@ export class StarField extends CanvasBG<StarFieldConfig> {
   }
   private updateParticles() {
     this.dots.forEach((point: Particle) => {
-      point.scale += this.velocity.z;
+      point.scale += this.speed.z;
       //update x coordinate
       point.coordinate[0] +=
         (((point.coordinate[0] - this.size.width / 2) * point.scale) / 2) *
-          this.velocity.z +
-        (this.velocity.x * point.scale) / 1;
+          this.speed.z +
+        (this.speed.x * point.scale) / 1;
 
       //update y coordinate
       point.coordinate[1] +=
         (((point.coordinate[1] - this.size.height / 2) * point.scale) / 2) *
-          this.velocity.z +
-        (this.velocity.y * point.scale) / 1;
+          this.speed.z +
+        (this.speed.y * point.scale) / 1;
 
       //recreate point if it goes out of bounds
       if (
@@ -88,7 +90,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
     });
   }
   private regenerateParticle(point: Particle) {
-    const direction = this.config.feedFrom || "anywhere";
+    const direction = this.config.feed || "anywhere";
     if (direction === "anywhere") {
       point.coordinate[0] = mathRandBetween(-250, this.size.width + 250);
       point.coordinate[1] = mathRandBetween(-250, this.size.height + 250);
@@ -125,7 +127,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
     this.dots.forEach((point) => {
       if (!this.ctx) return;
       this.ctx.beginPath();
-      const alpha = ((this.config.globalAlpha || 1) * point.scale) / 2;
+      const alpha = ((this.config.alpha || 1) * point.scale) / 2;
       this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       this.ctx.arc(
         point.coordinate[0],
@@ -138,7 +140,7 @@ export class StarField extends CanvasBG<StarFieldConfig> {
     });
   }
   protected init(): void {
-    this.velocity = (this.config.velocity as VelocityVector) || {
+    this.speed = (this.config.speed as speedVector) || {
       x: 0,
       y: 0,
       z: 0.001,
