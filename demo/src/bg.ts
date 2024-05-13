@@ -3,8 +3,8 @@ import {
   StarField,
   MouseTracker,
   Constellation,
-//} from "@haandev/canvasbg";
-} from "../../src";
+} from "@haandev/canvasbg";
+//} from "../../src";
 
 const bg = new CanvasBG(".bg-canvas")
   .use(new MouseTracker())
