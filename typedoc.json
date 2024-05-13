@@ -9,5 +9,11 @@
   "excludeProtected": true,
   "disableSources": true,
   "readme": "README.md",
-  "tsconfig": "tsconfig.json"
+  "tsconfig": "tsconfig.json",
+  "navigationLinks": {
+    "Home": "https://haandev.github.io/canvasbg",
+    "GitHub": "https://github.com/haandev/canvasbg",
+    "NPM": "https://www.npmjs.com/package/@haandev/canvasbg",
+    "Demo": "https://canvasbg.vercel.app"
+  }
 }

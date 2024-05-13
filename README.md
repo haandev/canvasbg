@@ -1,4 +1,4 @@
-# CanvasBG
+# CanvasBG 0.0.4
 
 A powerful TypeScript library for creating interactive canvas backgrounds.
 
